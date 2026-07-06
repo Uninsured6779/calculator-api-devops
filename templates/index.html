@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calculator API</title>
+</head>
+<body>
+
+    <h1>Calculator API</h1>
+
+    <p>Version: {{ version }}</p>
+
+    <input type="number" id="a" placeholder="First number">
+
+    <input type="number" id="b" placeholder="Second number">
+
+    <select id="operation">
+        <option value="add">Add</option>
+        <option value="subtract">Subtract</option>
+        <option value="multiply">Multiply</option>
+        <option value="divide">Divide</option>
+    </select>
+
+    <button onclick="calculate()">Calculate</button>
+
+    <h2 id="result"></h2>
+
+    <hr>
+
+    <p>
+        <a href="/docs">Swagger UI</a>
+    </p>
+
+    <script>
+        async function calculate() {
+
+            const a = document.getElementById("a").value;
+            const b = document.getElementById("b").value;
+            const operation = document.getElementById("operation").value;
+
+            const response = await fetch(
+                `/calculate-ui?a=${a}&b=${b}&operation=${operation}`
+            );
+
+            const data = await response.json();
+
+            document.getElementById("result").innerText =
+                "Result: " + data.result;
+        }
+    </script>
+
+</body>
+</html>

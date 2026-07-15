@@ -1,12 +1,12 @@
-# Calculator API, projekt DevOps
+# Calculator API – projekt DevOps
 
 ## Opis projektu
 
-Projekt stworzyłem jako część zaliczenia przedmiotu DevOps. 
+Projekt stworzyłem jako część zaliczenia przedmiotu DevOps.
 
-Celem było stworzenie prostej aplikacji webowej oraz opracowanie pełnego procesu automatycznego budowania, testowania i wdrażania aplikacji do chmury AWS z użyciem narzędzi poznanych podczas zajęć.
+Celem było przygotowanie prostej aplikacji webowej oraz opracowanie pełnego procesu automatycznego budowania, testowania i wdrażania aplikacji do chmury AWS z wykorzystaniem narzędzi poznanych podczas zajęć.
 
-Wybrałem prosty kalkulator, który udostępnia REST API oraz prosty interfejs webowy, dostępny z poziomu przeglądarki.
+Wybrałem prosty kalkulator, który udostępnia REST API oraz podstawowy interfejs webowy dostępny z poziomu przeglądarki.
 
 ---
 
@@ -34,15 +34,15 @@ Przykładowa odpowiedź:
 
 ```json
 {
-  "version": "1.0.4"
+  "version": "1.0.8"
 }
 ```
 
 ### POST /calculate
 
-To główny endpoint aplikacji.
+Jest to główny endpoint aplikacji.
 
-Pozwala na wykonywanie podstawowych działań matematycznych:
+Pozwala wykonywać podstawowe działania matematyczne:
 
 * dodawanie,
 * odejmowanie,
@@ -71,7 +71,7 @@ Przykładowa odpowiedź:
 
 ## Architektura rozwiązania
 
-Podczas realizacji projektu użyłem następującego procesu wdrażania:
+Podczas realizacji projektu wykorzystałem następujący proces wdrażania:
 
 ```text
 GitHub
@@ -95,7 +95,7 @@ Publiczny adres URL
 
 ## Wykorzystane technologie
 
-W projekcie wykorzystano:
+W projekcie wykorzystałem:
 
 * Python 3.12
 * FastAPI
@@ -113,24 +113,24 @@ W projekcie wykorzystano:
 
 ## CI/CD
 
-Proces CI/CD zrealizowano z użyciem GitHub Actions.
+Proces CI/CD został zrealizowany z wykorzystaniem GitHub Actions.
 
-Po wykonaniu push do gałęzi `main`, automatycznie uruchamia się pipeline, który:
+Po wykonaniu pushu do gałęzi `main` automatycznie uruchamia się pipeline, który:
 
 1. pobiera kod z repozytorium,
 2. instaluje zależności,
-3. uruchamia testy,
+3. uruchamia testy automatyczne,
 4. buduje obraz Docker,
 5. publikuje obraz w Docker Hub,
-6. wdraża nową wersję aplikacji na AWS ECS.
+6. wymusza wdrożenie nowej wersji aplikacji w usłudze AWS ECS.
 
-Dzięki temu, wdrożenie nowej wersji aplikacji odbywa się bez manualnych operacji na serwerze.
+Dzięki temu wdrożenie nowej wersji aplikacji odbywa się bez ręcznego aktualizowania kontenera w AWS.
 
 ---
 
 ## Infrastructure as Code
 
-Do konfiguracji infrastruktury wykorzystano Terraform.
+Do częściowej konfiguracji infrastruktury wykorzystałem Terraform.
 
 Kod Terraform znajduje się w katalogu:
 
@@ -138,18 +138,10 @@ Kod Terraform znajduje się w katalogu:
 terraform/
 ```
 
-Terraform zarządza zasobami AWS wykorzystywanymi przez projekt, w tym:
+Obecna konfiguracja Terraform obejmuje następujące zasoby AWS:
 
 * CloudWatch Log Group,
 * Security Group.
-
-Podstawowe polecenia:
-
-```bash
-terraform init
-terraform plan
-terraform apply
-```
 
 ---
 
@@ -162,13 +154,13 @@ git clone https://github.com/Uninsured6779/calculator-api-devops.git
 cd calculator-api-devops
 ```
 
-### Budowanie obrazu 
+### Budowanie obrazu
 
 ```bash
 docker build -t calculator-api .
 ```
 
-### Uruchomienie kontenera 
+### Uruchomienie kontenera
 
 ```bash
 docker run -p 8000:8000 calculator-api
@@ -180,10 +172,18 @@ Po uruchomieniu aplikacja będzie dostępna pod adresem:
 http://localhost:8000
 ```
 
-Dokumentacja Swagger:
+Dokumentacja Swagger będzie dostępna pod adresem:
 
 ```text
 http://localhost:8000/docs
+```
+
+### Uruchomienie testów
+
+Testy można uruchomić lokalnie poleceniem:
+
+```bash
+pytest
 ```
 
 ---
@@ -196,11 +196,18 @@ Obraz aplikacji znajduje się w repozytorium Docker Hub:
 https://hub.docker.com/r/civoh42/calculator-api
 ```
 
+Gotowy obraz można pobrać i uruchomić poleceniami:
+
+```bash
+docker pull civoh42/calculator-api:latest
+docker run -p 8000:8000 civoh42/calculator-api:latest
+```
+
 ---
 
 ## Publiczny adres aplikacji
 
-Aplikacja została wdrożona na AWS ECS. Został również wykorzystany AWS ALB, aby aplikacja miała stały adres publiczny, który podano poniżej:
+Aplikacja została wdrożona w usłudze AWS ECS Fargate. Ruch do aplikacji jest obsługiwany przez AWS Application Load Balancer, dzięki czemu jest ona dostępna pod jednym publicznym adresem URL:
 
 ```text
 http://calculator-alb-1051564374.eu-central-1.elb.amazonaws.com/
@@ -218,15 +225,15 @@ http://calculator-alb-1051564374.eu-central-1.elb.amazonaws.com/docs
 
 ## Logowanie i monitoring
 
-Logi aplikacji są dostępne w usłudze AWS CloudWatch.
+Logi aplikacji są przesyłane do usługi AWS CloudWatch i można je przeglądać z poziomu usługi Amazon ECS.
 
-W projekcie wykorzystano również endpoint `/health`, który pozwala sprawdzić poprawne działanie aplikacji.
+Endpoint `/health` jest również wykorzystywany przez Application Load Balancer do sprawdzania, czy uruchomiona aplikacja działa poprawnie.
 
 ---
 
 ## Repozytorium
 
-Kod źródłowy projektu:
+Kod źródłowy projektu znajduje się pod adresem:
 
 ```text
 https://github.com/Uninsured6779/calculator-api-devops
@@ -236,13 +243,15 @@ https://github.com/Uninsured6779/calculator-api-devops
 
 ## Podsumowanie
 
-W ramach projektu zrealizowano następujące elementy:
+W ramach projektu zrealizowałem następujące elementy:
 
-* aplikacja webowa z endpointami `/health`, `/version` oraz `/calculate`,
-* konteneryzacja przy użyciu Dockera,
-* automatyczne testy,
+* aplikację webową z endpointami `/health`, `/version` oraz `/calculate`,
+* prosty interfejs użytkownika dostępny w przeglądarce,
+* konteneryzację aplikacji przy użyciu Dockera,
+* testy automatyczne z wykorzystaniem Pytest,
 * pipeline CI/CD w GitHub Actions,
-* wdrożenie aplikacji na AWS ECS,
-* publiczny adres URL,
-* Infrastructure as Code z użyciem Terraform,
+* publikowanie obrazu aplikacji w Docker Hub,
+* automatyczne wdrażanie aplikacji na AWS ECS Fargate,
+* publiczny adres URL udostępniony przez Application Load Balancer,
+* część infrastruktury zarządzaną przy użyciu Terraform,
 * logowanie aplikacji w AWS CloudWatch.
